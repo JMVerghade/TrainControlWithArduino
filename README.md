@@ -3,7 +3,7 @@ TrainControlWithArduino
 
 Model railroad DCC command with Arduino
 
-Started the 10th of february 2014 by Jean-Marie Verghade
+Started the 10th of february 2014 by Jean-Marie Verghade in France near Grenoble.
 
 My goal is to developp software and hardware to control a small model railroad with DCC protocol.
 I come from software development, so Arduino looks the best way to start quickly to build a small DCC command control connected to my laptop PC that runs MS Windows. An infraRed remote control plus a 2x16 LCD display shall also provide the system with a very simple interface to select trains and pilot locomotives throttle without having the laptop connected. The PC will be used later for automation. For the moment, a small windows allows to control locomotives.
@@ -21,7 +21,7 @@ For the PC part, i decided to use Microsoft Visual Studio Express and to write i
 
 And that's all !
 
-I developp first with an Arduino UNO, but i get soon short in memory with 10 locomotives and 9 functions to manage.
+I developp first with an Arduino UNO, but i get soon short in memory with 10 locomotives and 9 loco functions to manage. Why 9 ? Because my IR remote command has only 9 keys... Need to adress this point...
 Unfortunately, i made a short on my Arduino board with the DCC 20VAC... So i decided to buy a MEGA and try again.
-However, i have something that works fine, even if code is not perfect...
+However, i have something that works fine, trains throttes is controlled with IR commande and with PC interface. Even if code is far from perfect, i share it to thanks peoples for sharing their lib, and to help other people who has the same interest.
 
