@@ -5,6 +5,7 @@
 * The DCC waveform is output on Pin 9, and is suitable for connection to an LMD18200-based booster directly,
 * or to a single-ended-to-differential driver, to connect with most other kinds of boosters.
 * The pin 10 is also used, but not for the LMD18200 HBridge
+* For Arduino MEGA, Pin 11 is used (and pin 12 is not useful
 * Manage also a 2x16 Text display and an 38kHz Infrared receiver to supply a user freindly man machine interface
 * Serial communication is also implemented in order to connect the DCC central to a computer thanks to a USB-RS232 serial link
 * and the Modbus protocol. Specific modbus functions are added to the standard protocol to control the central
@@ -57,7 +58,10 @@
 
 // include the library code:
 #include <LiquidCrystal.h>
-LiquidCrystal lcd(12, 8, 7, 6, 5, 4);
+// On a Arduino UNO
+//LiquidCrystal lcd(12, 8, 7, 6, 5, 4);
+// On a Arduino MEGA 2560
+LiquidCrystal lcd(2, 8, 7, 6, 5, 4);
 
 // Infrared receiver 
 int RECV_PIN = 13;
@@ -89,7 +93,7 @@ boolean ESD = false;
 #define BOOSTER_PWM 3 // enable booster
 //#define MMI_ESD 3 // Emergency Stop
 //#define START_LED   13  // on when start, off when stop
-#define BOOSTER_OVER_LED    11  // on if current too high
+#define BOOSTER_OVER_LED    9  // on if current too high
 //#define DEBUG_LED 12
 
 
@@ -166,16 +170,21 @@ only have one device assigned to it.
   slave._device = &regBank;  
 
 // Initialize the serial port for coms at 9600 baud  
-  slave.setBaud(19200);   
+  slave.setBaud(9600);   
   
   slave.LocoThrottleRegister(&(ThrottleManage));
   slave.LocoFunctionRegister(&(FunctionManage));
   slave.LocoESDRegister(&(ESDManage));
 }
+void FunctionManage2(byte adr, byte function, byte functionvalue)
+{
+  dps.setFunctions0to4(0,DCC_SHORT_ADDRESS,0);
+}
 
 void FunctionManage(byte adr, byte function, byte functionvalue)
-// this function is called by the Modbus driver if it has been registered first
+// this function is called by the Modbus driver if it has been registered first or by the IR remote control routines
 {
+  
   // seek the loco slot regarding adress
   byte i=0;
   while ((i<LOCO_MAX_NUMBER) && (Locos[i].m_bAdress!=adr))
@@ -184,11 +193,13 @@ void FunctionManage(byte adr, byte function, byte functionvalue)
   }
   //Serial.print("Loco slot found=");
   //Serial.print(i);
+  IR_CurrentLoco=i;
     if(functionvalue==1) {Locos[i].m_bLocoFunction[function]=1;} else {Locos[i].m_bLocoFunction[function]=0;}
     if (function<=4) {
       debug_led_state=!debug_led_state;
       
       dps.setFunctions0to4(adr,DCC_SHORT_ADDRESS,Locos[i].m_bLocoFunction[0] | Locos[i].m_bLocoFunction[1]<<1 | Locos[i].m_bLocoFunction[2]<<2 | Locos[i].m_bLocoFunction[3] <<3 | Locos[i].m_bLocoFunction[4]<<4); 
+      //dps.setFunctions0to4(3,DCC_SHORT_ADDRESS,0); //Locos[i].m_bLocoFunction[0] | Locos[i].m_bLocoFunction[1]<<1 | Locos[i].m_bLocoFunction[2]<<2 | Locos[i].m_bLocoFunction[3] <<3 | Locos[i].m_bLocoFunction[4]<<4); 
     }
     else
     if (function <=8)
@@ -203,7 +214,7 @@ void FunctionManage(byte adr, byte function, byte functionvalue)
 }
 
 void ThrottleManage(byte adr, byte dir, int locospeed)
-// this function is called by the Modbus driver if it has been registered during Setup
+// this function is called by the Modbus driver if it has been registered during Setup or by the IR remote control routines
 {
     //if(locospeed == 0) //this would be treated as an e-stop!
     //{
